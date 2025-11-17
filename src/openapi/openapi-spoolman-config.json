@@ -1,0 +1,14 @@
+{
+    "library": "typescript-nestjs",
+    "outputDir": "src/api/spoolman/",
+    "additionalProperties": {
+        "modelFileSuffix": ".dto",
+        "modelSuffix": "Dto",
+        "serviceFileSuffix": ".api",
+        "serviceSuffix": "Api",
+        "modelPropertyNaming": "camelCase",
+        "paramNaming": "camelCase",
+        "useSingleRequestParameter": true,
+        "supportsES6": true
+    }
+}

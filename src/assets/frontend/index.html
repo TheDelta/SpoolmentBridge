@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SpoolmentBridge</title>
+    <script src="/js/jsQR.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div>⚠️ Alpha UI - probably works best on Chrome / Android Chrome</div>
+    <button type="button" id="start-qr">Start QR Scann</button>
+    <canvas id="canvas" style="height: 400px; width: 400px"></canvas>
+    <video id="video" style="height: 400px; width: 400px"></video>
+    <hr />
+    <form method="post" action="/find-prusament-filament">
+      <input type="text" id="spoolId" name="spoolId" minlength="3" required />
+      <input type="submit" value="Submit" />
+    </form>
+    <script>
+      // QR
+      const inputSpoolId = document.getElementById('spoolId');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      let spoolId = null;
+      let scanQrStarted = false;
+
+      const regexUrls = {
+        'prusa.io': /prusa\.io\/s\/(\w+)\/?/i,
+        'prusament.com': /prusament\.com\/spool\/(?:\?spoolId=|\w+\/)(\w+)\/?/i,
+      };
+
+      document
+        .querySelector('#start-qr')
+        .addEventListener('click', async () => {
+          if (scanQrStarted) return;
+          scanQrStarted = true;
+          startQrScan();
+        });
+
+      function startQrScan() {
+        navigator.mediaDevices
+          .getUserMedia({ video: { facingMode: 'environment' } })
+          .then((stream) => {
+            video.srcObject = stream;
+            video.setAttribute('playsinline', true);
+            video.play();
+            requestAnimationFrame(scanLoop);
+          });
+      }
+
+      function toggleVideo() {
+        if (video.paused) {
+          video.play();
+          spoolId = null;
+          inputSpoolId.value = '';
+        } else {
+          video.pause();
+        }
+      }
+
+      function scanLoop() {
+        if (
+          video.readyState === video.HAVE_ENOUGH_DATA &&
+          !spoolId &&
+          !video.paused
+        ) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          if (code?.data) {
+            console.debug('Found QR code:', code);
+
+            for (const r of Object.values(regexUrls)) {
+              console.log('exec', r, match);
+              if (match?.[1].length) {
+                spoolId = match[1];
+                inputSpoolId.value = spoolId;
+                video.pause();
+                break;
+              }
+            }
+            return;
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+        requestAnimationFrame(scanLoop);
+      }
+    </script>
+
+    <hr />
+    <button type="button" id="start-nfc">Start NFC</button>
+    <textarea id="nfc-data"></textarea>
+    <script>
+      function canNFC() {
+        return 'NDEFReader' in window;
+      }
+
+      let ignoreRead = false;
+      let ndef = null;
+
+      // function a2utf16(string) {
+      //   let result = new Uint16Array(string.length);
+      //   for (let i = 0; i < string.length; i++) {
+      //     result[i] = string.codePointAt(i);
+      //   }
+      //   return result;
+      // }
+
+      // const textRecord = {
+      //   recordType: "text",
+      //   lang: "fr",
+      //   encoding: "utf-16",
+      //   data: a2utf16("Bonjour, François !")
+      // };
+
+      // const ndef = new NDEFReader();
+      // await ndef.write({ records: [textRecord] });
+      //----
+      // const urlRecord = {
+      //   recordType: "url",
+      //   data:"https://w3c.github.io/web-nfc/"
+      // };
+
+      // const ndef = new NDEFReader();
+      // await ndef.write({ records: [urlRecord] });
+      //----
+      // function readMimeRecord(record) {
+      //   console.assert(record.recordType === "mime");
+      //   if (record.mediaType === "application/json") {
+      //     const textDecoder = new TextDecoder();
+      //     console.log(`JSON: ${JSON.parse(decoder.decode(record.data))}`);
+      //   }
+      //   else if (record.mediaType.startsWith('image/')) {
+      //     const blob = new Blob([record.data], { type: record.mediaType });
+      //     const img = new Image();
+      //     img.src = URL.createObjectURL(blob);
+      //     document.body.appendChild(img);
+      //   }
+      //   else {
+      //     // TODO: Handle other MIME types.
+      //   }
+      // }
+      // ---
+      // const encoder = new TextEncoder();
+      // const data = {
+      //   firstname: "François",
+      //   lastname: "Beaufort"
+      // };
+      // const jsonRecord = {
+      //   recordType: "mime",
+      //   mediaType: "application/json",
+      //   data: encoder.encode(JSON.stringify(data))
+      // };
+
+      // const imageRecord = {
+      //   recordType: "mime",
+      //   mediaType: "image/png",
+      //   data: await (await fetch("icon1.png")).arrayBuffer()
+      // };
+
+      // const ndef = new NDEFReader();
+      // await ndef.write({ records: [jsonRecord, imageRecord] });
+      // const absoluteUrlRecord = {
+      //   recordType: "absolute-url",
+      //   data:"https://w3c.github.io/web-nfc/"
+      // };
+
+      // const ndef = new NDEFReader();
+      // await ndef.write({ records: [absoluteUrlRecord] });
+
+      async function initOptTag() {
+        const response = await fetch('/opt/initialize');
+        const { mimeType, payloadBase64 } = await response.json();
+
+        // Convert base64 string back to Uint8Array
+        const binaryString = atob(payloadBase64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        console.log(bytes);
+
+        const res = await writeNfc({
+          records: [
+            {
+              recordType: 'mime',
+              mediaType: mimeType,
+              data: bytes,
+            },
+          ],
+        });
+
+        console.log('NFC tag written with payload from backend', res);
+      }
+
+      async function sendTagDataToApi(payloadBase64) {
+        // Convert Uint8Array bytes to base64 string
+
+        console.log('Send...', payloadBase64);
+
+        const response = await fetch('/opt/read-tag', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            payloadBase64,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send NFC data to backend');
+        }
+
+        const json = await response.json();
+        console.log(json);
+
+        textareaOptJson.value = JSON.stringify(json, undefined, 2);
+
+        return json;
+      }
+
+      async function initializeNFC() {
+        if (!canNFC()) {
+          return null;
+        }
+
+        try {
+          ndef = new NDEFReader();
+          // Request permission by starting a scan (user gesture required)
+          await ndef.scan();
+          console.log('NFC support detected and permission granted.', ndef);
+
+          ndef.onreading = (event) => {
+            if (ignoreRead) {
+              return; // write pending, ignore read.
+            }
+            console.log('NFC tag detected');
+
+            const textarea = document.getElementById('nfc-data');
+            textarea.value = '';
+
+            const message = event.message;
+            if (message.records.length === 0) {
+              console.log('NFC tag has no NDEF records, write opentag:');
+
+              initOptTag();
+              return;
+            }
+
+            for (const record of message.records) {
+              try {
+                if (
+                  record.recordType === 'mime' &&
+                  record.mediaType === 'application/vnd.openprinttag'
+                ) {
+                  const base64String = btoa(
+                    String.fromCharCode(new Uint8Array(record.data.buffer)),
+                  );
+
+                  textarea.value += `OpenTag|base64: "${base64String}"\n`;
+                  sendTagDataToApi(base64String);
+                } else if (record.recordType === 'text') {
+                  // Decode text record
+                  const textDecoder = new TextDecoder(record.encoding);
+                  const text = textDecoder.decode(record.data);
+                  console.log('Text record:', text);
+
+                  textarea.value += `TXT|${record.id}: "${text}"\n`;
+                } else if (record.recordType === 'url') {
+                  const textDecoder = new TextDecoder();
+                  const url = textDecoder.decode(record.data);
+                  console.log('URL record:', url);
+                  textarea.value += `URL|${record.id}: "${url}"\n`;
+                } else {
+                  console.log('Record type:', record.recordType);
+                  textarea.value += `[${record.recordType}|${record.mediaType}|${record.id}]: "${record.data}"\n`;
+                }
+              } catch (e) {
+                console.error('Error decoding NFC record', e);
+              }
+            }
+
+            if (
+              message.records.length === 1 &&
+              message.records[0].recordType === 'empty'
+            ) {
+              console.log('Empty tag, init it!');
+              initOptTag();
+            }
+          };
+
+          ndef.onreadingerror = () => {
+            console.log('Error reading NFC tag.');
+          };
+
+          // Now you can read and write
+          return ndef;
+        } catch (error) {
+          console.error('Permission denied or NFC unavailable:', error);
+        }
+
+        return null;
+      }
+
+      function writeNfc(data) {
+        console.log('writeNfc', data);
+        ignoreRead = true;
+        return new Promise((resolve, reject) => {
+          ndef.addEventListener(
+            'reading',
+            (event) => {
+              console.log('Writing....');
+              // Check if we want to write to this tag, or reject.
+              ndef
+                .write(data)
+                .then(resolve, reject)
+                .finally(() => (ignoreRead = false));
+            },
+            { once: true },
+          );
+        });
+      }
+
+      // Usage example with a user gesture (button click)
+      document
+        .querySelector('#start-nfc')
+        .addEventListener('click', async () => {
+          const ndefInstance = await initializeNFC();
+          if (ndefInstance) {
+            // // To write data
+            // try {
+            //   // await ndef.write("Hello world");
+            //   // await ndef.write({
+            //   //   records: [{ recordType: "url", data: "http://example.com/" }]
+            //   // });
+            // } catch (writeError) {
+            //   console.error('Failed to write NFC data:', writeError);
+            // }
+          } else {
+            alert('NFC not supported (or permission issue?)');
+          }
+        });
+    </script>
+  </body>
+</html>

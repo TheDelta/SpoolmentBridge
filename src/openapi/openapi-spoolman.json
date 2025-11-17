@@ -1,0 +1,5023 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Spoolman REST API v1",
+    "description": "\n    REST API for Spoolman.\n\n    The API is served on the path `/api/v1/`.\n\n    Some endpoints also serve a websocket on the same path. The websocket is used to listen for changes to the data\n    that the endpoint serves. The websocket messages are JSON objects. Additionally, there is a root-level websocket\n    endpoint that listens for changes to any data in the database.\n    ",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/info": {
+      "get": {
+        "summary": "Info",
+        "description": "Return general info about the API.",
+        "operationId": "info_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Info"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "description": "Return a health check.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheck"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/backup": {
+      "post": {
+        "summary": "Backup",
+        "description": "Trigger a database backup. Only applicable for SQLite databases.",
+        "operationId": "backup_backup_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filament": {
+      "get": {
+        "tags": [
+          "filament"
+        ],
+        "summary": "Find Filaments",
+        "description": "Get a list of filaments that matches the search query. A websocket is served on the same path to listen for updates to any filament, or added or deleted filaments. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Find_filaments_filament_get",
+        "parameters": [
+          {
+            "name": "vendor_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name",
+              "description": "See vendor.name.",
+              "deprecated": true
+            },
+            "description": "See vendor.name.",
+            "deprecated": true
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor ID",
+              "description": "See vendor.id.",
+              "deprecated": true
+            },
+            "description": "See vendor.id.",
+            "deprecated": true
+          },
+          {
+            "name": "vendor.name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name",
+              "description": "Partial case-insensitive search term for the filament vendor name. Separate multiple terms with a comma. Specify an empty string to match filaments with no vendor name. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament vendor name. Separate multiple terms with a comma. Specify an empty string to match filaments with no vendor name. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "vendor.id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor ID",
+              "description": "Match an exact vendor ID. Separate multiple IDs with a comma. Specify -1 to match filaments with no vendor.",
+              "examples": [
+                "1",
+                "1,2"
+              ]
+            },
+            "description": "Match an exact vendor ID. Separate multiple IDs with a comma. Specify -1 to match filaments with no vendor."
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Name",
+              "description": "Partial case-insensitive search term for the filament name. Separate multiple terms with a comma. Specify an empty string to match filaments with no name. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament name. Separate multiple terms with a comma. Specify an empty string to match filaments with no name. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "material",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Material",
+              "description": "Partial case-insensitive search term for the filament material. Separate multiple terms with a comma. Specify an empty string to match filaments with no material. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament material. Separate multiple terms with a comma. Specify an empty string to match filaments with no material. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "article_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Article Number",
+              "description": "Partial case-insensitive search term for the filament article number. Separate multiple terms with a comma. Specify an empty string to match filaments with no article number. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament article number. Separate multiple terms with a comma. Specify an empty string to match filaments with no article number. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "color_hex",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Color",
+              "description": "Match filament by similar color. Slow operation!"
+            },
+            "description": "Match filament by similar color. Slow operation!"
+          },
+          {
+            "name": "color_similarity_threshold",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "description": "The similarity threshold for color matching. A value between 0.0-100.0, where 0 means match only exactly the same color.",
+              "default": 20,
+              "title": "Color Similarity Threshold"
+            },
+            "description": "The similarity threshold for color matching. A value between 0.0-100.0, where 0 means match only exactly the same color.",
+            "example": 20
+          },
+          {
+            "name": "external_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Find filaments imported by the given external ID. Separate multiple IDs with a comma. Specify empty string to match filaments with no external ID. Surround a term with quotes to search for the exact term.",
+              "title": "External Id"
+            },
+            "description": "Find filaments imported by the given external ID. Separate multiple IDs with a comma. Specify empty string to match filaments with no external ID. Surround a term with quotes to search for the exact term.",
+            "example": "polymaker_pla_polysonicblack_1000_175"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort",
+              "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items."
+            },
+            "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items.",
+            "example": "vendor.name:asc,spool_weight:desc"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit",
+              "description": "Maximum number of items in the response."
+            },
+            "description": "Maximum number of items in the response."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "title": "Offset",
+              "description": "Offset in the full result set if a limit is set.",
+              "default": 0
+            },
+            "description": "Offset in the full result set if a limit is set."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Filament"
+                  },
+                  "title": "Response 200 Find Filaments Filament Get"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilamentEvent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "filament"
+        ],
+        "summary": "Add Filament",
+        "description": "Add a new filament to the database.",
+        "operationId": "Add_filament_filament_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilamentParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Filament"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filament/{filament_id}": {
+      "get": {
+        "tags": [
+          "filament"
+        ],
+        "summary": "Get Filament",
+        "description": "Get a specific filament. A websocket is served on the same path to listen for changes to the filament. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Get_filament_filament__filament_id__get",
+        "parameters": [
+          {
+            "name": "filament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Filament Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Filament"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilamentEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "filament"
+        ],
+        "summary": "Update Filament",
+        "description": "Update any attribute of a filament. Only fields specified in the request will be affected. If extra is set, all existing extra fields will be removed and replaced with the new ones.",
+        "operationId": "Update_filament_filament__filament_id__patch",
+        "parameters": [
+          {
+            "name": "filament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Filament Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FilamentUpdateParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Filament"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "filament"
+        ],
+        "summary": "Delete Filament",
+        "description": "Delete a filament.",
+        "operationId": "Delete_filament_filament__filament_id__delete",
+        "parameters": [
+          {
+            "name": "filament_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Filament Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/spool": {
+      "get": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Find Spool",
+        "description": "Get a list of spools that matches the search query. A websocket is served on the same path to listen for updates to any spool, or added or deleted spools. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Find_spool_spool_get",
+        "parameters": [
+          {
+            "name": "filament_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Name",
+              "description": "See filament.name.",
+              "deprecated": true
+            },
+            "description": "See filament.name.",
+            "deprecated": true
+          },
+          {
+            "name": "filament_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament ID",
+              "description": "See filament.id.",
+              "deprecated": true
+            },
+            "description": "See filament.id.",
+            "deprecated": true
+          },
+          {
+            "name": "filament_material",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Material",
+              "description": "See filament.material.",
+              "deprecated": true
+            },
+            "description": "See filament.material.",
+            "deprecated": true
+          },
+          {
+            "name": "vendor_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name",
+              "description": "See filament.vendor.name.",
+              "deprecated": true
+            },
+            "description": "See filament.vendor.name.",
+            "deprecated": true
+          },
+          {
+            "name": "vendor_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor ID",
+              "description": "See filament.vendor.id.",
+              "deprecated": true
+            },
+            "description": "See filament.vendor.id.",
+            "deprecated": true
+          },
+          {
+            "name": "filament.name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Name",
+              "description": "Partial case-insensitive search term for the filament name. Separate multiple terms with a comma. Specify an empty string to match spools with no filament name. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament name. Separate multiple terms with a comma. Specify an empty string to match spools with no filament name. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "filament.id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament ID",
+              "description": "Match an exact filament ID. Separate multiple IDs with a comma.",
+              "examples": [
+                "1",
+                "1,2"
+              ]
+            },
+            "description": "Match an exact filament ID. Separate multiple IDs with a comma."
+          },
+          {
+            "name": "filament.material",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Filament Material",
+              "description": "Partial case-insensitive search term for the filament material. Separate multiple terms with a comma. Specify an empty string to match spools with no filament material. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament material. Separate multiple terms with a comma. Specify an empty string to match spools with no filament material. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "filament.vendor.name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name",
+              "description": "Partial case-insensitive search term for the filament vendor name. Separate multiple terms with a comma. Specify an empty string to match spools with no vendor name. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the filament vendor name. Separate multiple terms with a comma. Specify an empty string to match spools with no vendor name. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "filament.vendor.id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+(,-?\\d+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor ID",
+              "description": "Match an exact vendor ID. Separate multiple IDs with a comma. Set it to -1 to match spools with filaments with no vendor.",
+              "examples": [
+                "1",
+                "1,2"
+              ]
+            },
+            "description": "Match an exact vendor ID. Separate multiple IDs with a comma. Set it to -1 to match spools with filaments with no vendor."
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Location",
+              "description": "Partial case-insensitive search term for the spool location. Separate multiple terms with a comma. Specify an empty string to match spools with no location. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the spool location. Separate multiple terms with a comma. Specify an empty string to match spools with no location. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "lot_nr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lot/Batch Number",
+              "description": "Partial case-insensitive search term for the spool lot number. Separate multiple terms with a comma. Specify an empty string to match spools with no lot nr. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the spool lot number. Separate multiple terms with a comma. Specify an empty string to match spools with no lot nr. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "allow_archived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Allow Archived",
+              "description": "Whether to include archived spools in the search results.",
+              "default": false
+            },
+            "description": "Whether to include archived spools in the search results."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort",
+              "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items."
+            },
+            "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items.",
+            "example": "filament.name:asc,filament.vendor.id:asc,location:desc"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit",
+              "description": "Maximum number of items in the response."
+            },
+            "description": "Maximum number of items in the response."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "title": "Offset",
+              "description": "Offset in the full result set if a limit is set.",
+              "default": 0
+            },
+            "description": "Offset in the full result set if a limit is set."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Spool"
+                  },
+                  "title": "Response 200 Find Spool Spool Get"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpoolEvent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Add Spool",
+        "description": "Add a new spool to the database. Only specify either remaining_weight or used_weight. If no weight is set, the spool will be assumed to be full.",
+        "operationId": "Add_spool_spool_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpoolParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spool"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/spool/{spool_id}": {
+      "get": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Get Spool",
+        "description": "Get a specific spool. A websocket is served on the same path to listen for changes to the spool. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Get_spool_spool__spool_id__get",
+        "parameters": [
+          {
+            "name": "spool_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Spool Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spool"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpoolEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Update Spool",
+        "description": "Update any attribute of a spool. Only fields specified in the request will be affected. remaining_weight and used_weight can't be set at the same time. If extra is set, all existing extra fields will be removed and replaced with the new ones.",
+        "operationId": "Update_spool_spool__spool_id__patch",
+        "parameters": [
+          {
+            "name": "spool_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Spool Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpoolUpdateParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spool"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Delete Spool",
+        "description": "Delete a spool.",
+        "operationId": "Delete_spool_spool__spool_id__delete",
+        "parameters": [
+          {
+            "name": "spool_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Spool Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/spool/{spool_id}/use": {
+      "put": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Use Spool Filament",
+        "description": "Use some length or weight of filament from the spool. Specify either a length or a weight, not both.",
+        "operationId": "Use_spool_filament_spool__spool_id__use_put",
+        "parameters": [
+          {
+            "name": "spool_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Spool Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpoolUseParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spool"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/spool/{spool_id}/measure": {
+      "put": {
+        "tags": [
+          "spool"
+        ],
+        "summary": "Use Spool Filament Based On The Current Weight Measurement",
+        "description": "Use some weight of filament from the spool. Specify the current gross weight of the spool.",
+        "operationId": "Use_spool_filament_based_on_the_current_weight_measurement_spool__spool_id__measure_put",
+        "parameters": [
+          {
+            "name": "spool_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Spool Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpoolMeasureParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spool"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendor": {
+      "get": {
+        "tags": [
+          "vendor"
+        ],
+        "summary": "Find Vendor",
+        "description": "Get a list of vendors that matches the search query. A websocket is served on the same path to listen for updates to any vendor, or added or deleted vendors. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Find_vendor_vendor_get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor Name",
+              "description": "Partial case-insensitive search term for the vendor name. Separate multiple terms with a comma. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Partial case-insensitive search term for the vendor name. Separate multiple terms with a comma. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "external_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor External ID",
+              "description": "Exact match for the vendor external ID. Separate multiple IDs with a comma. Specify empty string to match filaments with no external ID. Surround a term with quotes to search for the exact term."
+            },
+            "description": "Exact match for the vendor external ID. Separate multiple IDs with a comma. Specify empty string to match filaments with no external ID. Surround a term with quotes to search for the exact term."
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort",
+              "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items."
+            },
+            "description": "Sort the results by the given field. Should be a comma-separate string with \"field:direction\" items.",
+            "example": "name:asc,id:desc"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit",
+              "description": "Maximum number of items in the response."
+            },
+            "description": "Maximum number of items in the response."
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "title": "Offset",
+              "description": "Offset in the full result set if a limit is set.",
+              "default": 0
+            },
+            "description": "Offset in the full result set if a limit is set."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Vendor"
+                  },
+                  "title": "Response 200 Find Vendor Vendor Get"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorEvent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "vendor"
+        ],
+        "summary": "Add Vendor",
+        "description": "Add a new vendor to the database.",
+        "operationId": "Add_vendor_vendor_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VendorParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendor"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vendor/{vendor_id}": {
+      "get": {
+        "tags": [
+          "vendor"
+        ],
+        "summary": "Get Vendor",
+        "description": "Get a specific vendor. A websocket is served on the same path to listen for changes to the vendor. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Get_vendor_vendor__vendor_id__get",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendor"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendorEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "vendor"
+        ],
+        "summary": "Update Vendor",
+        "description": "Update any attribute of a vendor. Only fields specified in the request will be affected. If extra is set, all existing extra fields will be removed and replaced with the new ones.",
+        "operationId": "Update_vendor_vendor__vendor_id__patch",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VendorUpdateParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vendor"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "vendor"
+        ],
+        "summary": "Delete Vendor",
+        "description": "Delete a vendor. The vendor attribute of any filaments who refer to the deleted vendor will be cleared.",
+        "operationId": "Delete_vendor_vendor__vendor_id__delete",
+        "parameters": [
+          {
+            "name": "vendor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vendor Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/setting/{key}": {
+      "get": {
+        "tags": [
+          "setting"
+        ],
+        "summary": "Get Setting",
+        "description": "Get a specific setting. If the setting has not been set, the default value will be returned.A websocket is served on the same path to listen for changes to the setting. See the HTTP Response code 299 for the content of the websocket messages.",
+        "operationId": "Get_setting_setting__key__get",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingResponse"
+                }
+              }
+            }
+          },
+          "299": {
+            "description": "Websocket message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingEvent"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "setting"
+        ],
+        "summary": "Set Setting",
+        "description": "Set the value of a setting. The body must match the JSON type of the setting. An empty body or a body containing only 'null' will reset the setting to its default value. The new value will be returned.",
+        "operationId": "Set_setting_setting__key__post",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/setting/": {
+      "get": {
+        "tags": [
+          "setting"
+        ],
+        "summary": "Get All Settings",
+        "description": "Get all settings, set or not. If the setting has not been set, 'value' will be the default value.",
+        "operationId": "Get_all_settings_setting__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/SettingResponse"
+                  },
+                  "type": "object",
+                  "title": "Response Get All Settings Setting  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/field/{entity_type}": {
+      "get": {
+        "tags": [
+          "field"
+        ],
+        "summary": "Get Extra Fields",
+        "description": "Get all extra fields for a specific entity type.",
+        "operationId": "Get_extra_fields_field__entity_type__get",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EntityType",
+              "description": "Entity type this field is for"
+            },
+            "description": "Entity type this field is for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExtraField"
+                  },
+                  "title": "Response Get Extra Fields Field  Entity Type  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/field/{entity_type}/{key}": {
+      "post": {
+        "tags": [
+          "field"
+        ],
+        "summary": "Add Or Update Extra Field",
+        "description": "Add or update an extra field for a specific entity type. Returns the full list of extra fields for the entity type.",
+        "operationId": "Add_or_update_extra_field_field__entity_type___key__post",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EntityType",
+              "description": "Entity type this field is for"
+            },
+            "description": "Entity type this field is for"
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9_]+$",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtraFieldParameters"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExtraField"
+                  },
+                  "title": "Response Add Or Update Extra Field Field  Entity Type   Key  Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "field"
+        ],
+        "summary": "Delete Extra Field",
+        "description": "Delete an extra field for a specific entity type. Returns the full list of extra fields for the entity type.",
+        "operationId": "Delete_extra_field_field__entity_type___key__delete",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EntityType",
+              "description": "Entity type this field is for"
+            },
+            "description": "Entity type this field is for"
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z0-9_]+$",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExtraField"
+                  },
+                  "title": "Response Delete Extra Field Field  Entity Type   Key  Delete"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/material": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Find Materials",
+        "description": "Get a list of all filament materials.",
+        "operationId": "Find_materials_material_get",
+        "responses": {
+          "200": {
+            "description": "A list of all filament materials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Find Materials Material Get"
+                },
+                "example": [
+                  "PLA",
+                  "ABS",
+                  "PETG"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/article-number": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Find Article Numbers",
+        "description": "Get a list of all article numbers.",
+        "operationId": "Find_article_numbers_article_number_get",
+        "responses": {
+          "200": {
+            "description": "A list of all article numbers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Find Article Numbers Article Number Get"
+                },
+                "example": [
+                  "123456",
+                  "987654"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lot-number": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Find Lot Numbers",
+        "description": "Get a list of all lot numbers.",
+        "operationId": "Find_lot_numbers_lot_number_get",
+        "responses": {
+          "200": {
+            "description": "A list of all lot numbers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Find Lot Numbers Lot Number Get"
+                },
+                "example": [
+                  "123456",
+                  "987654"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/location": {
+      "get": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Find Locations",
+        "description": "Get a list of all spool locations.",
+        "operationId": "Find_locations_location_get",
+        "responses": {
+          "200": {
+            "description": "A list of all spool locations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response Find Locations Location Get"
+                },
+                "example": [
+                  "Printer 1",
+                  "Printer 2",
+                  "Storage Shelf A"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/location/{location}": {
+      "patch": {
+        "tags": [
+          "other"
+        ],
+        "summary": "Rename Location",
+        "description": "Rename a spool location. All spools in this location will be moved to the new location.",
+        "operationId": "Rename_location_location__location__patch",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Location"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameLocationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RootModel_str_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/external/filament": {
+      "get": {
+        "tags": [
+          "external"
+        ],
+        "summary": "Get All External Filaments",
+        "description": "Get all external filaments.",
+        "operationId": "Get_all_external_filaments_external_filament_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalFilament"
+                  },
+                  "type": "array",
+                  "title": "Response Get All External Filaments External Filament Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/external/material": {
+      "get": {
+        "tags": [
+          "external"
+        ],
+        "summary": "Get All External Materials",
+        "description": "Get all external materials.",
+        "operationId": "Get_all_external_materials_external_material_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalMaterial"
+                  },
+                  "type": "array",
+                  "title": "Response Get All External Materials External Material Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export/spools": {
+      "get": {
+        "tags": [
+          "export"
+        ],
+        "summary": "Export Spools",
+        "description": "Export the list of spools in various formats. Filament and vendor data is included.",
+        "operationId": "Export_spools_export_spools_get",
+        "parameters": [
+          {
+            "name": "fmt",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExportFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export/filaments": {
+      "get": {
+        "tags": [
+          "export"
+        ],
+        "summary": "Export Filaments",
+        "description": "Export the list of filaments in various formats. Vendor data is included.",
+        "operationId": "Export_filaments_export_filaments_get",
+        "parameters": [
+          {
+            "name": "fmt",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExportFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export/vendors": {
+      "get": {
+        "tags": [
+          "export"
+        ],
+        "summary": "Export Vendors",
+        "description": "Export the list of vendors in various formats.",
+        "operationId": "Export_vendors_export_vendors_get",
+        "parameters": [
+          {
+            "name": "fmt",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExportFormat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BackupResponse": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path to the created backup file.",
+            "examples": [
+              "/home/app/.local/share/spoolman/backups/spoolman.db"
+            ]
+          }
+        },
+        "type": "object",
+        "title": "BackupResponse"
+      },
+      "EntityType": {
+        "type": "string",
+        "enum": [
+          "vendor",
+          "filament",
+          "spool"
+        ],
+        "title": "EntityType"
+      },
+      "EventType": {
+        "type": "string",
+        "enum": [
+          "added",
+          "updated",
+          "deleted"
+        ],
+        "title": "EventType",
+        "description": "Event types."
+      },
+      "ExportFormat": {
+        "type": "string",
+        "enum": [
+          "csv",
+          "json"
+        ],
+        "title": "ExportFormat"
+      },
+      "ExternalFilament": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "A unique ID for this filament.",
+            "examples": [
+              "polymaker_pla_polysonicblack_1000_175"
+            ]
+          },
+          "manufacturer": {
+            "type": "string",
+            "title": "Manufacturer",
+            "description": "Filament manufacturer.",
+            "examples": [
+              "Polymaker"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Filament name.",
+            "examples": [
+              "Polysonic™ Black"
+            ]
+          },
+          "material": {
+            "type": "string",
+            "title": "Material",
+            "description": "Filament material.",
+            "examples": [
+              "PLA"
+            ]
+          },
+          "density": {
+            "type": "number",
+            "title": "Density",
+            "description": "Density in g/cm3.",
+            "examples": [
+              1.23
+            ]
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "description": "Net weight of a single spool.",
+            "examples": [
+              1000
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "Weight of an empty spool.",
+            "examples": [
+              140
+            ]
+          },
+          "spool_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SpoolType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Type of spool.",
+            "examples": [
+              "plastic"
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "title": "Diameter",
+            "description": "Filament in mm.",
+            "examples": [
+              1.75
+            ]
+          },
+          "color_hex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Hex",
+            "description": "Filament color code in hex format, for single-color filaments.",
+            "examples": [
+              "2c3232"
+            ]
+          },
+          "color_hexes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Hexes",
+            "description": "For multi-color filaments. List of hex color codes in hex format.",
+            "examples": [
+              [
+                "2c3232",
+                "5f5f5f"
+              ]
+            ]
+          },
+          "extruder_temp": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extruder Temp",
+            "description": "Extruder/nozzle temperature in °C.",
+            "examples": [
+              210
+            ]
+          },
+          "bed_temp": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bed Temp",
+            "description": "Bed temperature in °C.",
+            "examples": [
+              50
+            ]
+          },
+          "finish": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Finish"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Finish of the filament.",
+            "examples": [
+              "matte"
+            ]
+          },
+          "multi_color_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/spoolman__externaldb__MultiColorDirection"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Direction of multi-color filaments.",
+            "examples": [
+              "coaxial"
+            ]
+          },
+          "pattern": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Pattern"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pattern of the filament.",
+            "examples": [
+              "marble"
+            ]
+          },
+          "translucent": {
+            "type": "boolean",
+            "title": "Translucent",
+            "description": "Whether the filament is translucent.",
+            "default": false
+          },
+          "glow": {
+            "type": "boolean",
+            "title": "Glow",
+            "description": "Whether the filament is glow-in-the-dark.",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "manufacturer",
+          "name",
+          "material",
+          "density",
+          "weight",
+          "diameter"
+        ],
+        "title": "ExternalFilament"
+      },
+      "ExternalMaterial": {
+        "properties": {
+          "material": {
+            "type": "string",
+            "title": "Material",
+            "examples": [
+              "PLA"
+            ]
+          },
+          "density": {
+            "type": "number",
+            "title": "Density",
+            "examples": [
+              1.24
+            ]
+          },
+          "extruder_temp": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extruder Temp",
+            "description": "Extruder/nozzle temperature in °C.",
+            "examples": [
+              210
+            ]
+          },
+          "bed_temp": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bed Temp",
+            "description": "Bed temperature in °C.",
+            "examples": [
+              50
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "material",
+          "density"
+        ],
+        "title": "ExternalMaterial"
+      },
+      "ExtraField": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Nice name"
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order",
+            "description": "Order of the field",
+            "default": 0
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
+            "description": "Unit of the value"
+          },
+          "field_type": {
+            "$ref": "#/components/schemas/ExtraFieldType",
+            "description": "Type of the field"
+          },
+          "default_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Value",
+            "description": "Default value of the field"
+          },
+          "choices": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choices",
+            "description": "Choices for the field, only for field type choice"
+          },
+          "multi_choice": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multi Choice",
+            "description": "Whether multiple choices can be selected"
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z0-9_]+$",
+            "title": "Key",
+            "description": "Unique key"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/EntityType",
+            "description": "Entity type this field is for"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "field_type",
+          "key",
+          "entity_type"
+        ],
+        "title": "ExtraField"
+      },
+      "ExtraFieldParameters": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Nice name"
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order",
+            "description": "Order of the field",
+            "default": 0
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit",
+            "description": "Unit of the value"
+          },
+          "field_type": {
+            "$ref": "#/components/schemas/ExtraFieldType",
+            "description": "Type of the field"
+          },
+          "default_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Value",
+            "description": "Default value of the field"
+          },
+          "choices": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choices",
+            "description": "Choices for the field, only for field type choice"
+          },
+          "multi_choice": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multi Choice",
+            "description": "Whether multiple choices can be selected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "field_type"
+        ],
+        "title": "ExtraFieldParameters"
+      },
+      "ExtraFieldType": {
+        "type": "string",
+        "enum": [
+          "text",
+          "integer",
+          "integer_range",
+          "float",
+          "float_range",
+          "datetime",
+          "boolean",
+          "choice"
+        ],
+        "title": "ExtraFieldType"
+      },
+      "Filament": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Unique internal ID of this filament type."
+          },
+          "registered": {
+            "type": "string",
+            "title": "Registered",
+            "description": "When the filament was registered in the database. UTC Timezone."
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Filament name, to distinguish this filament type among others from the same vendor.Should contain its color for example.",
+            "examples": [
+              "PolyTerra™ Charcoal Black"
+            ]
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Vendor"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The vendor of this filament type."
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material",
+            "description": "The material of this filament, e.g. PLA.",
+            "examples": [
+              "PLA"
+            ]
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this filament in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "density": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "title": "Density",
+            "description": "The density of this filament in g/cm3.",
+            "examples": [
+              1.24
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "title": "Diameter",
+            "description": "The diameter of this filament in mm.",
+            "examples": [
+              1.75
+            ]
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight",
+            "description": "The weight of the filament in a full spool, in grams.",
+            "examples": [
+              1000
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "The empty spool weight, in grams.",
+            "examples": [
+              140
+            ]
+          },
+          "article_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Article Number",
+            "description": "Vendor article number, e.g. EAN, QR code, etc.",
+            "examples": [
+              "PM70820"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this filament type.",
+            "examples": [
+              ""
+            ]
+          },
+          "settings_extruder_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Extruder Temp",
+            "description": "Overridden extruder temperature, in °C.",
+            "examples": [
+              210
+            ]
+          },
+          "settings_bed_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Bed Temp",
+            "description": "Overridden bed temperature, in °C.",
+            "examples": [
+              60
+            ]
+          },
+          "color_hex": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8,
+                "minLength": 6
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Hex",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. If it's a multi-color filament, the multi_color_hexes field is used instead.",
+            "examples": [
+              "FF0000"
+            ]
+          },
+          "multi_color_hexes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 6
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multi Color Hexes",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. Specifying multiple colors separated by commas. Also set the multi_color_direction field if you specify multiple colors.",
+            "examples": [
+              "FF0000,00FF00,0000FF"
+            ]
+          },
+          "multi_color_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/spoolman__api__v1__models__MultiColorDirection"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Type of multi-color filament. Only set if the multi_color_hexes field is set.",
+            "examples": [
+              "coaxial",
+              "longitudinal"
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this filament comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "polymaker_pla_polysonicblack_1000_175"
+            ]
+          },
+          "extra": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Extra",
+            "description": "Extra fields for this filament. All values are JSON-encoded data. Query the /fields endpoint for more details about the fields."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "registered",
+          "density",
+          "diameter",
+          "extra"
+        ],
+        "title": "Filament"
+      },
+      "FilamentEvent": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EventType",
+            "description": "Event type."
+          },
+          "resource": {
+            "type": "string",
+            "const": "filament",
+            "title": "Resource",
+            "description": "Resource type."
+          },
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "When the event occured. UTC Timezone."
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Filament",
+            "description": "Updated filament."
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "resource",
+          "date",
+          "payload"
+        ],
+        "title": "FilamentEvent",
+        "description": "Event."
+      },
+      "FilamentParameters": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Filament name, to distinguish this filament type among others from the same vendor.Should contain its color for example.",
+            "examples": [
+              "PolyTerra™ Charcoal Black"
+            ]
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id",
+            "description": "The ID of the vendor of this filament type."
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material",
+            "description": "The material of this filament, e.g. PLA.",
+            "examples": [
+              "PLA"
+            ]
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this filament in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "density": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "title": "Density",
+            "description": "The density of this filament in g/cm3.",
+            "examples": [
+              1.24
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "title": "Diameter",
+            "description": "The diameter of this filament in mm.",
+            "examples": [
+              1.75
+            ]
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight",
+            "description": "The weight of the filament in a full spool, in grams. (net weight)",
+            "examples": [
+              1000
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "The empty spool weight, in grams.",
+            "examples": [
+              140
+            ]
+          },
+          "article_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Article Number",
+            "description": "Vendor article number, e.g. EAN, QR code, etc.",
+            "examples": [
+              "PM70820"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this filament type.",
+            "examples": [
+              ""
+            ]
+          },
+          "settings_extruder_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Extruder Temp",
+            "description": "Overridden extruder temperature, in °C.",
+            "examples": [
+              210
+            ]
+          },
+          "settings_bed_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Bed Temp",
+            "description": "Overridden bed temperature, in °C.",
+            "examples": [
+              60
+            ]
+          },
+          "color_hex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Hex",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. If it's a multi-color filament, the multi_color_hexes field is used instead.",
+            "examples": [
+              "FF0000"
+            ]
+          },
+          "multi_color_hexes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multi Color Hexes",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. Specifying multiple colors separated by commas. Also set the multi_color_direction field if you specify multiple colors.",
+            "examples": [
+              "FF0000,00FF00,0000FF"
+            ]
+          },
+          "multi_color_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MultiColorDirection-Input"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Type of multi-color filament. Only set if the color_hex field contains multiple colors. ",
+            "examples": [
+              "coaxial",
+              "longitudinal"
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this filament comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "polymaker_pla_polysonicblack_1000_175"
+            ]
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this filament."
+          }
+        },
+        "type": "object",
+        "required": [
+          "density",
+          "diameter"
+        ],
+        "title": "FilamentParameters"
+      },
+      "FilamentUpdateParameters": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Filament name, to distinguish this filament type among others from the same vendor.Should contain its color for example.",
+            "examples": [
+              "PolyTerra™ Charcoal Black"
+            ]
+          },
+          "vendor_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor Id",
+            "description": "The ID of the vendor of this filament type."
+          },
+          "material": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Material",
+            "description": "The material of this filament, e.g. PLA.",
+            "examples": [
+              "PLA"
+            ]
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this filament in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "density": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Density",
+            "description": "The density of this filament in g/cm3.",
+            "examples": [
+              1.24
+            ]
+          },
+          "diameter": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diameter",
+            "description": "The diameter of this filament in mm.",
+            "examples": [
+              1.75
+            ]
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight",
+            "description": "The weight of the filament in a full spool, in grams. (net weight)",
+            "examples": [
+              1000
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "The empty spool weight, in grams.",
+            "examples": [
+              140
+            ]
+          },
+          "article_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Article Number",
+            "description": "Vendor article number, e.g. EAN, QR code, etc.",
+            "examples": [
+              "PM70820"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this filament type.",
+            "examples": [
+              ""
+            ]
+          },
+          "settings_extruder_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Extruder Temp",
+            "description": "Overridden extruder temperature, in °C.",
+            "examples": [
+              210
+            ]
+          },
+          "settings_bed_temp": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settings Bed Temp",
+            "description": "Overridden bed temperature, in °C.",
+            "examples": [
+              60
+            ]
+          },
+          "color_hex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color Hex",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. If it's a multi-color filament, the multi_color_hexes field is used instead.",
+            "examples": [
+              "FF0000"
+            ]
+          },
+          "multi_color_hexes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Multi Color Hexes",
+            "description": "Hexadecimal color code of the filament, e.g. FF0000 for red. Supports alpha channel at the end. Specifying multiple colors separated by commas. Also set the multi_color_direction field if you specify multiple colors.",
+            "examples": [
+              "FF0000,00FF00,0000FF"
+            ]
+          },
+          "multi_color_direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MultiColorDirection-Input"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Type of multi-color filament. Only set if the color_hex field contains multiple colors. ",
+            "examples": [
+              "coaxial",
+              "longitudinal"
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this filament comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "polymaker_pla_polysonicblack_1000_175"
+            ]
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this filament."
+          }
+        },
+        "type": "object",
+        "title": "FilamentUpdateParameters"
+      },
+      "Finish": {
+        "type": "string",
+        "enum": [
+          "matte",
+          "glossy"
+        ],
+        "title": "Finish"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthCheck": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "examples": [
+              "healthy"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "HealthCheck"
+      },
+      "Info": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "examples": [
+              "0.7.0"
+            ]
+          },
+          "debug_mode": {
+            "type": "boolean",
+            "title": "Debug Mode",
+            "examples": [
+              false
+            ]
+          },
+          "automatic_backups": {
+            "type": "boolean",
+            "title": "Automatic Backups",
+            "examples": [
+              true
+            ]
+          },
+          "data_dir": {
+            "type": "string",
+            "title": "Data Dir",
+            "examples": [
+              "/home/app/.local/share/spoolman"
+            ]
+          },
+          "logs_dir": {
+            "type": "string",
+            "title": "Logs Dir",
+            "examples": [
+              "/home/app/.local/share/spoolman"
+            ]
+          },
+          "backups_dir": {
+            "type": "string",
+            "title": "Backups Dir",
+            "examples": [
+              "/home/app/.local/share/spoolman/backups"
+            ]
+          },
+          "db_type": {
+            "type": "string",
+            "title": "Db Type",
+            "examples": [
+              "sqlite"
+            ]
+          },
+          "git_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Git Commit",
+            "examples": [
+              "a1b2c3d"
+            ]
+          },
+          "build_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Build Date",
+            "examples": [
+              "2021-01-01T00:00:00Z"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "debug_mode",
+          "automatic_backups",
+          "data_dir",
+          "logs_dir",
+          "backups_dir",
+          "db_type"
+        ],
+        "title": "Info"
+      },
+      "Message": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "Message"
+      },
+      "MultiColorDirection-Input": {
+        "type": "string",
+        "enum": [
+          "coaxial",
+          "longitudinal"
+        ],
+        "title": "MultiColorDirection",
+        "description": "Enum for multi-color direction."
+      },
+      "Pattern": {
+        "type": "string",
+        "enum": [
+          "marble",
+          "sparkle"
+        ],
+        "title": "Pattern"
+      },
+      "RenameLocationBody": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "The new name of the location."
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "RenameLocationBody"
+      },
+      "RootModel_str_": {
+        "type": "string",
+        "title": "RootModel[str]"
+      },
+      "SettingEvent": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EventType",
+            "description": "Event type."
+          },
+          "resource": {
+            "type": "string",
+            "const": "setting",
+            "title": "Resource",
+            "description": "Resource type."
+          },
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "When the event occured. UTC Timezone."
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SettingKV",
+            "description": "Updated setting."
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "resource",
+          "date",
+          "payload"
+        ],
+        "title": "SettingEvent",
+        "description": "Event."
+      },
+      "SettingKV": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "description": "Setting key."
+          },
+          "setting": {
+            "$ref": "#/components/schemas/SettingResponse",
+            "description": "Setting value."
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "setting"
+        ],
+        "title": "SettingKV"
+      },
+      "SettingResponse": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value",
+            "description": "Setting value."
+          },
+          "is_set": {
+            "type": "boolean",
+            "title": "Is Set",
+            "description": "Whether the setting has been set. If false, 'value' contains the default value."
+          },
+          "type": {
+            "$ref": "#/components/schemas/SettingType",
+            "description": "Setting type. This corresponds with JSON types."
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "is_set",
+          "type"
+        ],
+        "title": "SettingResponse"
+      },
+      "SettingType": {
+        "type": "string",
+        "enum": [
+          "boolean",
+          "number",
+          "string",
+          "array",
+          "object"
+        ],
+        "title": "SettingType",
+        "description": "The type of a setting."
+      },
+      "Spool": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Unique internal ID of this spool of filament."
+          },
+          "registered": {
+            "type": "string",
+            "title": "Registered",
+            "description": "When the spool was registered in the database. UTC Timezone."
+          },
+          "first_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Used",
+            "description": "First logged occurence of spool usage. UTC Timezone."
+          },
+          "last_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used",
+            "description": "Last logged occurence of spool usage. UTC Timezone."
+          },
+          "filament": {
+            "$ref": "#/components/schemas/Filament",
+            "description": "The filament type of this spool."
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this spool in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "remaining_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Weight",
+            "description": "Estimated remaining weight of filament on the spool in grams. Only set if the filament type has a weight set.",
+            "examples": [
+              500.6
+            ]
+          },
+          "initial_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Initial Weight",
+            "description": "The initial weight, in grams, of the filament on the spool (net weight).",
+            "examples": [
+              1246
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "Weight of an empty spool (tare weight).",
+            "examples": [
+              246
+            ]
+          },
+          "used_weight": {
+            "type": "number",
+            "minimum": 0,
+            "title": "Used Weight",
+            "description": "Consumed weight of filament from the spool in grams.",
+            "examples": [
+              500.3
+            ]
+          },
+          "remaining_length": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Length",
+            "description": "Estimated remaining length of filament on the spool in millimeters. Only set if the filament type has a weight set.",
+            "examples": [
+              5612.4
+            ]
+          },
+          "used_length": {
+            "type": "number",
+            "minimum": 0,
+            "title": "Used Length",
+            "description": "Consumed length of filament from the spool in millimeters.",
+            "examples": [
+              50.7
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location",
+            "description": "Where this spool can be found.",
+            "examples": [
+              "Shelf A"
+            ]
+          },
+          "lot_nr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Nr",
+            "description": "Vendor manufacturing lot/batch number of the spool.",
+            "examples": [
+              "52342"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this specific spool.",
+            "examples": [
+              ""
+            ]
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived",
+            "description": "Whether this spool is archived and should not be used anymore."
+          },
+          "extra": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Extra",
+            "description": "Extra fields for this spool. All values are JSON-encoded data. Query the /fields endpoint for more details about the fields."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "registered",
+          "filament",
+          "used_weight",
+          "used_length",
+          "archived",
+          "extra"
+        ],
+        "title": "Spool"
+      },
+      "SpoolEvent": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EventType",
+            "description": "Event type."
+          },
+          "resource": {
+            "type": "string",
+            "const": "spool",
+            "title": "Resource",
+            "description": "Resource type."
+          },
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "When the event occured. UTC Timezone."
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Spool",
+            "description": "Updated spool."
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "resource",
+          "date",
+          "payload"
+        ],
+        "title": "SpoolEvent",
+        "description": "Event."
+      },
+      "SpoolMeasureParameters": {
+        "properties": {
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "description": "Current gross weight of the spool, in g.",
+            "examples": [
+              200
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "weight"
+        ],
+        "title": "SpoolMeasureParameters"
+      },
+      "SpoolParameters": {
+        "properties": {
+          "first_used": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Used",
+            "description": "First logged occurence of spool usage."
+          },
+          "last_used": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used",
+            "description": "Last logged occurence of spool usage."
+          },
+          "filament_id": {
+            "type": "integer",
+            "title": "Filament Id",
+            "description": "The ID of the filament type of this spool."
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this filament in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "initial_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Initial Weight",
+            "description": "The initial weight of the filament on the spool, in grams. (net weight)",
+            "examples": [
+              200
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "The weight of an empty spool, in grams. (tare weight)",
+            "examples": [
+              200
+            ]
+          },
+          "remaining_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Weight",
+            "description": "Remaining weight of filament on the spool. Can only be used if the filament type has a weight set.",
+            "examples": [
+              800
+            ]
+          },
+          "used_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Used Weight",
+            "description": "Used weight of filament on the spool.",
+            "examples": [
+              200
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location",
+            "description": "Where this spool can be found.",
+            "examples": [
+              "Shelf A"
+            ]
+          },
+          "lot_nr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Nr",
+            "description": "Vendor manufacturing lot/batch number of the spool.",
+            "examples": [
+              "52342"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this specific spool.",
+            "examples": [
+              ""
+            ]
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived",
+            "description": "Whether this spool is archived and should not be used anymore.",
+            "default": false
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this spool."
+          }
+        },
+        "type": "object",
+        "required": [
+          "filament_id"
+        ],
+        "title": "SpoolParameters"
+      },
+      "SpoolType": {
+        "type": "string",
+        "enum": [
+          "plastic",
+          "cardboard",
+          "metal"
+        ],
+        "title": "SpoolType"
+      },
+      "SpoolUpdateParameters": {
+        "properties": {
+          "first_used": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Used",
+            "description": "First logged occurence of spool usage."
+          },
+          "last_used": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used",
+            "description": "Last logged occurence of spool usage."
+          },
+          "filament_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filament Id",
+            "description": "The ID of the filament type of this spool."
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price",
+            "description": "The price of this filament in the system configured currency.",
+            "examples": [
+              20
+            ]
+          },
+          "initial_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Initial Weight",
+            "description": "The initial weight of the filament on the spool, in grams. (net weight)",
+            "examples": [
+              200
+            ]
+          },
+          "spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spool Weight",
+            "description": "The weight of an empty spool, in grams. (tare weight)",
+            "examples": [
+              200
+            ]
+          },
+          "remaining_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining Weight",
+            "description": "Remaining weight of filament on the spool. Can only be used if the filament type has a weight set.",
+            "examples": [
+              800
+            ]
+          },
+          "used_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Used Weight",
+            "description": "Used weight of filament on the spool.",
+            "examples": [
+              200
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location",
+            "description": "Where this spool can be found.",
+            "examples": [
+              "Shelf A"
+            ]
+          },
+          "lot_nr": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lot Nr",
+            "description": "Vendor manufacturing lot/batch number of the spool.",
+            "examples": [
+              "52342"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this specific spool.",
+            "examples": [
+              ""
+            ]
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived",
+            "description": "Whether this spool is archived and should not be used anymore.",
+            "default": false
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this spool."
+          }
+        },
+        "type": "object",
+        "title": "SpoolUpdateParameters"
+      },
+      "SpoolUseParameters": {
+        "properties": {
+          "use_length": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Length",
+            "description": "Length of filament to reduce by, in mm.",
+            "examples": [
+              2.2
+            ]
+          },
+          "use_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Weight",
+            "description": "Filament weight to reduce by, in g.",
+            "examples": [
+              5.3
+            ]
+          }
+        },
+        "type": "object",
+        "title": "SpoolUseParameters"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Vendor": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Unique internal ID of this vendor."
+          },
+          "registered": {
+            "type": "string",
+            "title": "Registered",
+            "description": "When the vendor was registered in the database. UTC Timezone."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Name",
+            "description": "Vendor name.",
+            "examples": [
+              "Polymaker"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this vendor.",
+            "examples": [
+              ""
+            ]
+          },
+          "empty_spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Empty Spool Weight",
+            "description": "The empty spool weight, in grams.",
+            "examples": [
+              140
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this vendor comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "eSun"
+            ]
+          },
+          "extra": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Extra",
+            "description": "Extra fields for this vendor. All values are JSON-encoded data. Query the /fields endpoint for more details about the fields."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "registered",
+          "name",
+          "extra"
+        ],
+        "title": "Vendor"
+      },
+      "VendorEvent": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/EventType",
+            "description": "Event type."
+          },
+          "resource": {
+            "type": "string",
+            "const": "vendor",
+            "title": "Resource",
+            "description": "Resource type."
+          },
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "When the event occured. UTC Timezone."
+          },
+          "payload": {
+            "$ref": "#/components/schemas/Vendor",
+            "description": "Updated vendor."
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "resource",
+          "date",
+          "payload"
+        ],
+        "title": "VendorEvent",
+        "description": "Event."
+      },
+      "VendorParameters": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Name",
+            "description": "Vendor name.",
+            "examples": [
+              "Polymaker"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this vendor.",
+            "examples": [
+              ""
+            ]
+          },
+          "empty_spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Empty Spool Weight",
+            "description": "The weight of an empty spool, in grams.",
+            "examples": [
+              200
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this vendor comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "eSun"
+            ]
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this vendor."
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "VendorParameters"
+      },
+      "VendorUpdateParameters": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Vendor name.",
+            "examples": [
+              "Polymaker"
+            ]
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment",
+            "description": "Free text comment about this vendor.",
+            "examples": [
+              ""
+            ]
+          },
+          "empty_spool_weight": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Empty Spool Weight",
+            "description": "The weight of an empty spool, in grams.",
+            "examples": [
+              200
+            ]
+          },
+          "external_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Id",
+            "description": "Set if this vendor comes from an external database. This contains the ID in the external database.",
+            "examples": [
+              "eSun"
+            ]
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra",
+            "description": "Extra fields for this vendor."
+          }
+        },
+        "type": "object",
+        "title": "VendorUpdateParameters"
+      },
+      "spoolman__api__v1__models__MultiColorDirection": {
+        "type": "string",
+        "enum": [
+          "coaxial",
+          "longitudinal"
+        ],
+        "title": "MultiColorDirection",
+        "description": "Enum for multi-color direction."
+      },
+      "spoolman__externaldb__MultiColorDirection": {
+        "type": "string",
+        "enum": [
+          "coaxial",
+          "longitudinal"
+        ],
+        "title": "MultiColorDirection"
+      }
+    }
+  }
+}
